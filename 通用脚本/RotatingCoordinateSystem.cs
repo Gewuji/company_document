@@ -57,8 +57,8 @@ public class RotatingCoordinateSystem : MonoBehaviour, IChildCallParent
                 {
                     case AxisType.x_Dir:
                         if (Input.mousePosition.y < startMousePosition.y)
-                            moveDistance = -rotateSpeed;
-                        else moveDistance = rotateSpeed;
+                            moveDistance = rotateSpeed;
+                        else moveDistance = -rotateSpeed;
                         transform.Rotate(moveDistance, 0, 0);
                         break;
                     case AxisType.y_Dir:
