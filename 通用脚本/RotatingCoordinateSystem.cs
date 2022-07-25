@@ -7,10 +7,13 @@ public class RotatingCoordinateSystem : MonoBehaviour, IChildCallParent
 {
     [SerializeField]
     private Transform target;
+    [SerializeField]
+    private float rotateSpeed = 10;
     private RoationControl[] roationControls;
     private AxisType currentRotationType = AxisType.None;
     private Vector3 startMousePosition = Vector3.zero;
     private float result;
+    private float moveDistance;
 
     public Transform Target
     {
@@ -23,6 +26,14 @@ public class RotatingCoordinateSystem : MonoBehaviour, IChildCallParent
 
             target = value;
         }
+    }
+
+    public float RotateSpeed { get => rotateSpeed; set => rotateSpeed = value; }
+
+    public void WhetherDeleteTarget(Transform deleteTransfrom)
+    {
+        if (target == deleteTransfrom)
+            Target = null;
     }
 
     private void Awake()
@@ -39,36 +50,33 @@ public class RotatingCoordinateSystem : MonoBehaviour, IChildCallParent
     {
         if (startMousePosition != Vector3.zero)
         {
-            if (currentRotationType == AxisType.y_Dir)
+            result = Vector3.Distance(startMousePosition, Input.mousePosition);
+            if (result >= 1)
             {
-                if (Input.mousePosition.x > startMousePosition.x)
-                    result = Vector3.Distance(Input.mousePosition, startMousePosition) * -1;
-
-                else if (Input.mousePosition.x < startMousePosition.x)
-                    result = Vector3.Distance(Input.mousePosition, startMousePosition);
+                switch (currentRotationType)
+                {
+                    case AxisType.x_Dir:
+                        if (Input.mousePosition.y < startMousePosition.y)
+                            moveDistance = -rotateSpeed;
+                        else moveDistance = rotateSpeed;
+                        transform.Rotate(moveDistance, 0, 0);
+                        break;
+                    case AxisType.y_Dir:
+                        if (Input.mousePosition.x > startMousePosition.x)
+                            moveDistance = -rotateSpeed;
+                        else moveDistance = rotateSpeed;
+                        transform.Rotate(0, moveDistance, 0);
+                        break;
+                    case AxisType.z_Dir:
+                        if (Input.mousePosition.y < startMousePosition.y)
+                            moveDistance = -rotateSpeed;
+                        else moveDistance = rotateSpeed;
+                        transform.Rotate(0, 0, moveDistance);
+                        break;
+                }
+                result = 0;
+                startMousePosition = Input.mousePosition;
             }
-
-            if (currentRotationType == AxisType.z_Dir || currentRotationType == AxisType.x_Dir)
-            {
-                if (Input.mousePosition.y > startMousePosition.y)
-                    result = Vector3.Distance(Input.mousePosition, startMousePosition);
-
-                else if (Input.mousePosition.y < startMousePosition.y)
-                    result = Vector3.Distance(Input.mousePosition, startMousePosition) * -1;
-            }
-        }
-
-        switch (currentRotationType)
-        {
-            case AxisType.x_Dir:
-                transform.localRotation = Quaternion.Euler(-Mathf.Clamp(result, -360, 0), 0, 0);
-                break;
-            case AxisType.y_Dir:
-                transform.localRotation = Quaternion.Euler(0, Mathf.Clamp(result, -360, 0), 0);
-                break;
-            case AxisType.z_Dir:
-                transform.localRotation = Quaternion.Euler(0, 0, Mathf.Clamp(result, -360, 0));
-                break;
         }
     }
 
